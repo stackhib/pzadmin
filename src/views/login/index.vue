@@ -138,7 +138,7 @@ const submitForm = async (formEl) => {
     //手动表单校验
     await formEl.validate((valid, fields) => {
         if (valid) {
-            console.log(loginForm,'submit!')
+            // console.log(loginForm,'submit!')
             //注册页面
             if(formType.value) {
                 userAuthentication(loginForm).then(({data}) => {
@@ -158,6 +158,7 @@ const submitForm = async (formEl) => {
                         //将token存入localStorage
                         localStorage.setItem('pz_token',data.data.token)
                         localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
+                        // console.log('Token 已存储:', data.data.token);
                         // 跳转到首页
                         router.push('/')
                     } else {

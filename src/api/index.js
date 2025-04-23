@@ -26,3 +26,12 @@ export const userGetMenu = () => {
 export const userSetMenu = (data) => {
     return request.post('/user/setmenu',data)
 }
+
+//菜单权限列表
+export const menuList = (params) => {
+    return request.get('/menu/list',{params})
+}
+//权限下拉列表
+export const menuSelectList = () => {
+    return request.get('/menu/selectlist')
+}

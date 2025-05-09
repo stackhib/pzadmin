@@ -10,7 +10,7 @@ http.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
     const token = localStorage.getItem('pz_token')
     //不需要token的请求
-    const whiteUrl = ['/get/code','/user/authentication','/v3pz/login']
+    const whiteUrl = ['/get/code','/user/authentication','/login']
     if (token && !whiteUrl.includes(config.url))
     {
         config.headers['x-token'] = token
@@ -31,15 +31,9 @@ http.interceptors.response.use(function (response) {
     if (response.data.code === -2) {
         localStorage.removeItem('pz_token')
         localStorage.removeItem('pz_userInfo')
+        localStorage.removeItem('pz_v3pz')
         window.location.href = window.location.origin
     }
-    // 建议修改拦截器逻辑（增加调试信息）
-    // if (response.data.code === -2) {
-    //     console.log('Token失效，当前token:', localStorage.getItem('pz_token')); // 调试日志
-    //     localStorage.removeItem('pz_token');
-    //     localStorage.removeItem('pz_userInfo');
-    //     window.location.href = window.location.origin + '/login'; // 建议明确跳转登录页
-    // }
     return response;
   }, function (error) {
     // 超出 2xx 范围的状态码都会触发该函数。

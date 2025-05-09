@@ -1,5 +1,5 @@
 <template>
-    <panelHead />
+    <panelHead :route="route" />
     <div class="btns">    <el-button  :icon = 'Plus' type="primary" @click="open(null)" size="small">新增</el-button>
 </div>
     <el-table :data="tableData.list" style="width: 100%;">
@@ -59,8 +59,13 @@
 <script setup>
     import {ref,reactive,onMounted, nextTick} from 'vue'
     import { userGetMenu,userSetMenu,menuList } from '../../../api'
-// import { ta } from 'element-plus/es/locales.mjs'
     import {Plus} from '@element-plus/icons-vue'
+    import {useRoute} from 'vue-router'
+
+
+    const route = useRoute()
+
+
     onMounted(()=>{
         //获取树形菜单权限数据
         userGetMenu().then(({data}) => {

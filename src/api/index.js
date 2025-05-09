@@ -35,3 +35,12 @@ export const menuList = (params) => {
 export const menuSelectList = () => {
     return request.get('/menu/selectlist')
 }
+//用户数据修改
+export const updateUser = (data) => {
+    return request.post('/update/user',data)
+}
+
+//用户菜单权限
+export const menuPermissons = () => {
+    return request.get('/menu/permissions')
+}

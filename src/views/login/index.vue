@@ -44,10 +44,11 @@
 
 <script setup>
 // 登录页逻辑
-import {ref,reactive} from 'vue'
-import { getCode, userAuthentication,login } from '../../api'
+import {ref,reactive,computed,toRaw} from 'vue'
+import { getCode, userAuthentication,login,menuPermissons } from '../../api'
 import {UserFilled,Lock} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
+import {useStore} from 'vuex'
 const imgUrl = new URL('../../../public/login-head.png', import.meta.url).href
 //点击切换登录和注册
 const handleChange = ()=> {
@@ -132,6 +133,10 @@ const time = setInterval(() => {
 }
 const router = useRouter()
 const loginFormRef = ref(null)
+const store = useStore()
+
+const routerList = computed(()=>store.state.menu.routerList)
+ 
 //表单提交
 const submitForm = async (formEl) => {
     if (!formEl) return
@@ -160,8 +165,17 @@ const submitForm = async (formEl) => {
                         localStorage.setItem('pz_userInfo',JSON.stringify(data.data.userInfo))
                         // console.log('Token 已存储:', data.data.token);
                         // 跳转到首页
+                        menuPermissons().then(({data}) => {
+                        console.log(data,'menuPermissons')
+                        store.commit('dynamicMenu',data.data)
+                        console.log(routerList,'routerList')
+                        toRaw(routerList.value).forEach(item => {
+                            router.addRoute('main',item)
+                        }) 
                         router.push('/')
-                    } else {
+                        })
+                    } 
+                    else {
                         ElMessage.error(data.msg)
                     }
                 })

@@ -66,6 +66,7 @@ const store = useStore()
 const handleClick = (item,active)=> {
     // console.log(item,'item')
     store.commit('addMenu',item.meta)
+    store.commit('updataMenuActive',active)
     router.push(item.meta.path)
 }
 // console.log(props,'props')

@@ -1,6 +1,6 @@
 <template>
     <panelHead :route="route" />
-    <div class="btns">    <el-button  :icon = 'Plus' type="primary" @click="open(null)" size="small">新增</el-button>
+<div class="btns">    <el-button  :icon = 'Plus' type="primary" @click="open(null)" size="small">新增</el-button>
 </div>
     <el-table :data="tableData.list" style="width: 100%;">
     <el-table-column prop ="id" label ="id"/>

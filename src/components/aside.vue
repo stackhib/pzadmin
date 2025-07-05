@@ -1,8 +1,9 @@
 <template>
     <el-menu :style="{width:!isCollapse ?'230px' :'64px'}" active-text-color="#ffd04b" background-color="#545c64" class="aside-container"
-        default-active="2" text-color="#fff" @open="handleOpen" 
+         text-color="#fff" @open="handleOpen" 
         @close="handleClose"
         :collapse="isCollapse"
+        :default-active="active"
         >
         <p class="logo-lg">{{ isCollapse ? 'DIDI' :"DIDI陪诊" }}</p>
         <TreeMenu :index='1' :menuData="menuData" />
@@ -23,6 +24,8 @@ const store = useStore()
 const menuData = computed(() => store.state.menu.routerList)
 
 const isCollapse = computed(()=>store.state.menu.isCollapse)
+
+const active = computed(()=>store.state.menu.menuActive)
 
 const handleOpen = () => { }
 const handleClose = () => { }

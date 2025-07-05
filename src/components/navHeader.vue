@@ -26,9 +26,9 @@
             <el-dropdown @command="handleClick" trigger="click">
                 <div class="el-dropdown-link flex-box">
                     <el-avatar
-                        src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                        :src="userInfo.avatar"
                     />
-                    <p class="user-name">admin</p>
+                    <p class="user-name">{{userInfo.name}}</p>
                 </div>
                 <span class="el-dropdown-link">
                     Dropdown List
@@ -56,6 +56,7 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 const selectMenu = computed(()=>store.state.menu.selectMenu)
+const userInfo = JSON.parse(localStorage.getItem('pz_userInfo'))
 //关闭tag
 const closeTab = (item,index) => {
     store.commit('closeMenu',item)

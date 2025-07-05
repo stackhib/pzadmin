@@ -4,7 +4,8 @@ const localData = localStorage.getItem('pz_v3pz')
 const state = localData ? localData.menu: {
     isCollapse:false,
     selectMenu: [],
-    routerList:[]
+    routerList:[],
+    menuActive:'1-1'
 }
 const mutations = {
     collapseMenu (state){
@@ -44,6 +45,9 @@ const mutations = {
     state.routerList = payload
     // console.log( state.routerList )
 
+    },
+    updataMenuActive(state,payload){
+        state.menuActive=payload
     }
     
 }

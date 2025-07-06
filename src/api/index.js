@@ -44,3 +44,23 @@ export const updateUser = (data) => {
 export const menuPermissons = () => {
     return request.get('/menu/permissions')
 }
+// https://v3pz.itndedu.com/v3pz/photo/list
+//用户头像列表
+export const photoList = () => {
+    return request.get('/photo/list')
+}
+//陪护师创建
+// https://v3pz.itndedu.com/v3pz/companion
+export const companion = (data) => {
+    return request.post('/companion', data)
+}
+//陪护列表
+//https://v3pz.itndedu.com/v3pz/companion/list
+export const companionList = (params) => {
+    return request.get('/companion/list',{params})
+}
+//陪护师删除
+//https://v3pz.itndedu.com/v3pz/delete/companion
+export const deleteCompanion = (data) => {
+    return request.post('/delete/companion', data)
+}

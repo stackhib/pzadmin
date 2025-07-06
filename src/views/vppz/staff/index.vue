@@ -1,6 +1,69 @@
 <template>
+    <panelHead :route="route"/>
+
     <div class="btns">
         <el-button  :icon = 'Plus' type="primary" @click="open(null)" size="small">新增</el-button>
+    <el-popconfirm
+    confirm-button-text="是"
+    cancel-button-text="否"
+    :icon="InfoFilled"
+    icon-color="#626AEF"
+    title="确定要删除吗？"
+    @confirm="confirmEvent"
+  >
+  <template #reference>
+    <el-button :icon="Delete" type="danger" size="small" >删除</el-button>
+  </template>
+</el-popconfirm>
+    </div>
+    <el-table :data="tableData.list" style="width: 100%;" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55"  />
+        <el-table-column prop ="id" label ="id"/>
+        <el-table-column prop ="name" label ="昵称"/>
+        <el-table-column  label ="头像">
+            <template #default="scope">
+          <el-image
+          :src="scope.row.avatar"
+          style="width: 50px;height: 50px;"
+          />
+        </template>
+        </el-table-column>
+        <el-table-column prop ="sex" label ="性别"> 
+            <template #default="scope">
+                {{ scope.row.sex === 1 ? '女' : '男' }}
+            </template>
+        </el-table-column>
+        <el-table-column prop ="mobile" label ="手机号"/>
+        <el-table-column prop ="active" label ="状态"> 
+            <template #default="scope">
+                <el-tag :type="scope.row.active ? 'success' : 'danger'">{{ scope.row.active  ? '正常' : '失效' }}</el-tag>
+            </template>
+        </el-table-column>
+    <el-table-column prop ="active" label ="创建时间" >
+        <template #default="scope">
+               <div class="flex-box">
+                <el-icon><Clock /></el-icon>
+               <span class="margin-left:10px">{{ scope.row.create_time }}</span>
+               </div>
+        </template>
+    </el-table-column>
+    <el-table-column label="操作">
+        <template #default="scope">
+            <el-button  type="primary" @click = "open(scope.row)">编辑</el-button>
+        </template>
+    </el-table-column>
+    </el-table>
+    <div class="pagination-info">
+        <el-pagination
+      v-model:current-page="paginationData.pageNum"
+      :page-size="paginationData.pageSize"
+      :size="small"
+      :background="false"
+      layout="total, prev, pager, next"
+      :total="tableData.total"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
     </div>
    <el-dialog
    v-model="dialogFormVisible" :before-close="beforeClose" title="陪护师添加" width="500"
@@ -20,7 +83,7 @@
             <el-input v-model = "form.name"placeholder="请输入昵称" />
         </el-form-item>
         <el-form-item label="头像" prop="avatar">
-           <el-button v-if='!form.avatar' type="primary">点击上传</el-button>
+           <el-button v-if='!form.avatar' type="primary" @click="dialogImgVisible=true">点击上传</el-button>
            <el-image
            v-else
            :src="form.avatar"
@@ -56,17 +119,71 @@
     </template>
 
    </el-dialog>
+   <el-dialog
+   v-model="dialogImgVisible" :before-close="beforeClose" title="选择图片" width="680"
+   >
+   <div class="image-list">
+    <div v-for="(item,index) in fileList" :key="item.name" class="img-box" @click="selectIndex=index">
+    <div v-if="selectIndex===index"  class="select">
+        <el-icon color="#fff" >
+            <Check />
+        </el-icon>
+    </div>
+        <el-image
+        :src="item.url"
+        style="width: 148px;height: 148px;"
+        />
+   </div>
+</div>
+   <template #footer>
+            <div class="dialog-footer">
+                <el-button  @click = "dialogImgVisible=false">取消</el-button>
+                <el-button type="primary" @click = "confirmImage()">确认</el-button>
+            </div>
+    </template>
+   </el-dialog>
 </template >
 
 <script setup>
-import {reactive, ref,onMounted} from 'vue'
-import {Plus} from '@element-plus/icons-vue'
-// import { userGetMenu,userSetMenu,menuList } from '../../../api'
-// import { ElMessage } from 'element-plus'
+import {reactive, ref,onMounted,nextTick} from 'vue'
+import {Plus,InfoFilled,Delete} from '@element-plus/icons-vue'
+import { photoList,companion,companionList,deleteCompanion } from '../../../api'
+import { ElMessage } from 'element-plus'
+import {useRoute} from 'vue-router'
+
+const route = useRoute()
+
+onMounted(()=>{
+    //获取头像列表
+    photoList().then(({data})=>{
+        fileList.value = data.data
+    })
+    getListData()
+})
+
+
+const paginationData =reactive({
+   pageNum:1,
+   pageSize:10
+})
+    //列表数据
+const tableData = reactive({
+        list:[],
+        total:0
+    })
+
+const getListData = ()=>{
+    companionList(paginationData).then(({data})=>{
+        const {list,total} = data.data
+        tableData.list = list
+        tableData.total = total
+    })
+}
 
 const dialogFormVisible = ref(false)
 const beforeClose = ()=>{
-
+    dialogFormVisible.value=false
+    formRef.value.resetFields()
 }
 const formRef= ref()
 const form=reactive({
@@ -79,21 +196,73 @@ const form=reactive({
     sex:''
 })
 const rules= reactive({
-
+    name :[{required:true,trigger:'blur',message:'请输入昵称'}],
+    avatar :[{required:true,message:'请选择头像'}],
+    sex :[{required:true,trigger:'change',message:'请选择性别'}],
+    mobile :[{required:true,trigger:'blur',message:'请添写手机号'}],
 })
 const confirm = async (formEl) =>{
         if (!formEl) return
         await formEl.validate((valid,fields)=>{
             if(valid) {
-                
+                companion(form).then(({data})=>{
+                    if(data.code===10000){
+                        ElMessage.success('成功')
+                        beforeClose()
+                        getListData()
+                    }else{
+                        ElMessage.error(data.message)
+                    }
+                })
             }
             else {
                 console.log('error submit',fields)
             }
         })
 }
-const open = ()=>{
+const open = (rowData={})=>{
     dialogFormVisible.value = true
+    nextTick(() => {
+        //如果rowData中
+        if (rowData) {
+            Object.assign(form, rowData)
+        } 
+    })  
+}
+//头像
+const dialogImgVisible = ref(false)
+const fileList = ref([])
+const selectIndex = ref(0)
+const confirmImage = ()=>{
+    form.avatar = fileList.value[selectIndex.value].url
+    dialogImgVisible.value = false
+}
+    //分页改变
+const handleSizeChange = (val) => {
+        paginationData.pageSize = val
+        getListData()
+    }
+const handleCurrentChange = (val) => {
+        paginationData.pageNum = val
+        getListData()
+    }
+const selectTableData = ref([])
+    //选中行的变化
+const handleSelectionChange = (val) => {
+        // 处理选中行的变化
+        selectTableData.value = val.map(item => ({id: item.id}))
+    }
+const confirmEvent = () => {
+    //没有选择数据
+    if (!selectTableData.value.length) {
+        return ElMessage.warning('请至少选择一条数据')
+    }
+    deleteCompanion({id:selectTableData.value}).then(({data})=>{
+        if(data.code===10000){
+            getListData();
+        }
+    })
+
 }
 </script>
 
